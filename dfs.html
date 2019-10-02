@@ -1,0 +1,249 @@
+
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
+"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<center><h1>迷宫问题演示</h1></center>
+<svg id = "svg" width="80%" height="80%" version="1.1"
+xmlns="http://www.w3.org/2000/svg">
+
+<!--
+SVG 元素：
+矩形 <rect>
+圆形 <circle>
+椭圆 <ellipse>
+线 <line>
+折线 <polyline>
+多边形 <polygon>
+路径 <path>
+-->
+
+
+<!-- <circle cx="100" cy="50" r="40" stroke="black" stroke-width="2" fill="red"/>
+<rect id="rect" x=200 y=40 width="100" height="50" style="fill:#6a0;stroke-width:1;stroke:#666"/>
+<rect id="rect" x=400 y=40 width="100" height="50" style="fill:#ea0;stroke-width:1;stroke:#f63"/> -->
+</svg>
+<br>
+<button onclick="run();">DFS模拟</button>
+<button onclick="">BFS模拟</button>
+
+<!-- <svg id="main" style="display:block;width:800;height:600;margin:0 auto;background-color:rgba(17,63,61,0.7);"></svg> -->
+
+
+<script type="text/javascript">
+
+//========Basic===============
+
+
+// 作用，工厂
+class SVG
+{
+    constructor() {
+        this._stage = document.getElementById("svg");
+        this._id = 0 //自动增长，唯一定位svg元素
+    }
+
+    // Create SVG rectangle
+    rect(attr,style)
+    {
+        var rect = document.createElementNS( "http://www.w3.org/2000/svg", "rect");
+        rect["id"] = ++this._id;
+        this.set_attr(rect,attr)
+        this.set_style(rect,style);
+        this._stage.appendChild(rect);
+        return rect;
+    }
+
+    // remove(ele)
+    // {
+    //     this._stage.removeChild(ele);
+    // }
+
+
+    set_style(ele, props)
+    {
+        if(typeof(props)=='string') document.getElementById(ele);
+        if(typeof(props)=='string') props = str2kvs(props);
+        for(let key in props) ele.style[key] = props[key];
+    }
+
+    set_attr(ele,props)
+    {
+        if(typeof(props)=='string') document.getElementById(ele);
+        if(typeof(props)=='string') props = str2kvs(props);
+        for(let key in props) ele.setAttribute(key,props[key]);
+    }
+}
+
+
+
+
+
+
+//========Tools=============
+
+function str2kvs(str)
+{
+    var res = {}
+    var arr = str.split(";");
+    for(var i=0; i<arr.length; i++)
+    {
+        var arr2 = arr[i].split(":");
+        if(arr2[0].length > 0)res[arr2[0]] = arr2[1];
+    }
+    return res;
+}
+
+function kvs2str(kvs)
+{
+    var res = "";
+    for(let key in kvs)
+    {
+        res += key + ":" + kvs[key] + ";";
+    }
+    return res;
+}
+
+function sleep(delay) {
+  var start = (new Date()).getTime();
+  while ((new Date()).getTime() - start < delay) {
+    continue;
+  }
+}
+
+
+//=======Argorithm========
+
+var base_x = 50;
+var base_y = 50;
+var base_pixel = 30;
+
+var n = 10; // y
+var m = 10; // x
+
+var pt_s = [1,1];
+var pt_e = [Math.round(Math.random()*(n-1))+1,Math.round(Math.random()*(m-1))+1];
+
+var a = []; // 存算法数据
+var vis = [];//标记数组
+var b = []; // 存图形对象
+var t = 0; // 时间点
+var find = 0;
+
+var base_style_props = [
+    str2kvs("fill:#ea0;stroke-width:1;stroke:#666;"),
+    str2kvs("fill:#f63;stroke-width:1;stroke:#666;"),
+    str2kvs("fill:#8c2;stroke-width:1;stroke:#666;"),
+    str2kvs("fill:#aaa;stroke-width:1;stroke:#666;"),
+    str2kvs("fill:#6a0;stroke-width:1;stroke:#666;"),
+];
+
+
+var svg = new SVG();
+// rec1 = svg.rect(base_style_props[1]);
+// setTimeout("svg.set_style(rec1,base_style_props[2])",2000);
+
+
+
+
+var dir = [[0,1],[1,0],[0,-1],[-1,0]];
+
+
+function is_in(row, col)
+{
+    return 1<=row&&row<=n && 1<=col&&col<=m;
+}
+
+
+// 算法目标：找到目的地
+function dfs(row, col, k)
+{
+    // sleep(100);
+    if(row==pt_e[0] && col==pt_e[1])
+    {
+        find = 1;
+        setTimeout(() => {
+            window.alert("Target is found!");
+        }, t+=200);
+    }
+    if(find) retrun;
+
+    setTimeout(() => {
+        svg.set_style(b[row][col],base_style_props[2]);
+    }, t+=200);
+    vis[row][col] = 1;
+    for(var i = 0; i < 4; i++)
+    {
+        var nxt_row = row + dir[i][0];
+        var nxt_col = col + dir[i][1];
+        if(is_in(nxt_row,nxt_col) && !vis[nxt_row][nxt_col])
+        {
+            console.log(k,",",i)
+            dfs(nxt_row, nxt_col,k+1);
+        }
+    }
+    // vis[row][col] = 0;
+    setTimeout(() => {
+        svg.set_style(b[row][col],base_style_props[3]);
+    }, t+=200);
+}
+
+function init1()
+{
+    for(var i = 1; i <= n; i++)
+    {
+        a[i] = [];
+        b[i] = [];
+        vis[i] = [];
+        for(var j = 1; j <= m; j++)
+        {
+            vis[i][j] = a[i][j] = (Math.random()>0.7);
+            var attr = {"width":base_pixel,"height":base_pixel,"x":base_x+(j-1)*base_pixel,"y":base_y+(i-1)*base_pixel};
+            var style = base_style_props[a[i][j]?1:0];
+            b[i][j] = svg.rect(attr,style);
+        }
+    }
+
+    vis[pt_s[0]][pt_s[1]] = a[pt_s[0]][pt_s[1]] = 0;
+    vis[pt_e[0]][pt_e[1]] = a[pt_e[0]][pt_e[1]] = 0;
+    svg.set_style(b[pt_s[0]][pt_s[1]], "fill:#0ee");
+    svg.set_style(b[pt_e[0]][pt_e[1]], "fill:#33d");
+}
+
+function init2()
+{
+    find = 0;
+
+    for(var i = 1; i <= n; i++)
+    {
+        for(var j = 1; j <= m; j++)
+        {
+            vis[i][j] = a[i][j];
+            var attr = {"width":base_pixel,"height":base_pixel,"x":base_x+(j-1)*base_pixel,"y":base_y+(i-1)*base_pixel};
+            var style = base_style_props[a[i][j]?1:0];
+            b[i][j] = svg.rect(attr,style);
+        }
+    }
+    svg.set_style(b[pt_s[0]][pt_s[1]], "fill:#0ee");
+    svg.set_style(b[pt_e[0]][pt_e[1]], "fill:#33d");
+}
+
+init1();
+
+function run()
+{
+    init2();
+    // dfs(pt_s[0],t_s[1], 1);
+    dfs(...pt_s, 1);
+}
+
+// Code Test
+// set_ele_style(document.getElementById("rect"), "x:300;fill:blue")
+// console.log(str2kvs("display:block;width:800;height:600;margin:0 auto;background-color:rgba(17,63,61,0.7);"))
+// console.log(kvs2str(str2kvs("display:block;width:800;height:600;margin:0 auto;background-color:rgba(17,63,61,0.7);")))
+
+// JSON.parse("display:block;width:800;height:600;margin:0 auto;background-color:rgba(17,63,61,0.7);", (k,v)=>{
+//   console.log(k,':',v); // 输出当前属性，最后一个为 ""
+//   元素.style.属性 = ...
+// });
+
+</script>
