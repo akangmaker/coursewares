@@ -1,0 +1,282 @@
+<!--
+Author ：zhk
+2019-10-02：
+想要制作算法演示动画，在尝试GitHub上几个开源js库后，感觉用起来不顺畅，各种查文档、查代码；
+但是想到自己要做的动画并不复杂，从界面上来讲，无非就是画框框，改颜色，并让这些动作在合适时间执行；
+于是有了这组代码的基础结构；
+2019-10-03：
+修改代码结构，使更简洁明了；
+增加BFS演示代码；
+
+
+-->
+
+<div style="width:600;margin:0 auto">
+    <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
+    "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+    <center><h1>迷宫问题演示</h1></center>
+    <!--SVG 元素：矩形 <rect>; 圆形 <circle>; 椭圆 <ellipse>; 线 <line>; 折线 <polyline>; 多边形 <polygon>; 路径 <path>-->
+    <svg id = "svg" width="560" height="360" version="1.1" xmlns="http://www.w3.org/2000/svg"></svg>
+
+    <div style="width:320px; height:120px;float:right">
+        <input type="range" id="time_scale" min="1" max="5" step="1" value="2" oninput="set_range()">
+        <label for="time_scale" id="label_1"></label>
+        <br/>
+        注：程序运行过程中请勿点击按钮或拖动条
+        <br/>
+        <button onclick="run1();">DFS模拟</button>
+        <button onclick="run2();">BFS模拟</button>
+        <button onclick="location.reload();">换一个图</button>
+       
+    </div>
+</div>
+
+
+
+<!-- <svg id="main" style="display:block;width:800;height:600;margin:0 auto;background-color:rgba(17,63,61,0.7);"></svg> -->
+
+
+<script type="text/javascript">
+
+//========Basic===============
+class SVG
+{
+    constructor() {
+        this._stage = document.getElementById("svg");
+        this._id = 0 //自动增长，唯一定位svg元素
+    }
+
+    // Create SVG rectangle
+    rect(attr,style)
+    {
+        let rect = document.createElementNS( "http://www.w3.org/2000/svg", "rect");
+        rect["id"] = ++this._id;
+        this.set_attr(rect,attr)
+        this.set_style(rect,style);
+        this._stage.appendChild(rect);
+        return rect;
+    }
+
+    // remove(ele)
+    // {
+    //     this._stage.removeChild(ele);
+    // }
+
+    set_style(ele, props)
+    {
+        if(typeof(props)=='string') document.getElementById(ele);
+        if(typeof(props)=='string') props = str2kvs(props);
+        for(let key in props) ele.style[key] = props[key];
+    }
+
+    set_attr(ele,props)
+    {
+        if(typeof(props)=='string') document.getElementById(ele);
+        if(typeof(props)=='string') props = str2kvs(props);
+        for(let key in props) ele.setAttribute(key,props[key]);
+    }
+}
+
+//========Tools====
+
+function str2kvs(str)
+{
+    let res = {}
+    let arr = str.split(";");
+    for(let i=0; i<arr.length; i++)
+    {
+        let arr2 = arr[i].split(":");
+        if(arr2[0].length > 0)res[arr2[0]] = arr2[1];
+    }
+    return res;
+}
+
+function kvs2str(kvs)
+{
+    let res = "";
+    for(let key in kvs)
+    {
+        res += key + ":" + kvs[key] + ";";
+    }
+    return res;
+}
+
+function sleep(delay) {
+  let start = (new Date()).getTime();
+  while ((new Date()).getTime() - start < delay) {
+    continue;
+  }
+}
+
+// 数组、对象克隆
+function clone(data){
+　　if(!data || !(data instanceof Object) || (typeof data=="function"))
+　　{
+　　　　return data||undefined;
+　　}
+　　var constructor = data.constructor;
+　　var result = new constructor();
+　　for(let key in data){
+　　　　if(data.hasOwnProperty(key)){
+　　　　　　result[key]=clone(data[key]);
+　　　　}
+　　}
+　　return result;
+}
+
+
+//======算法逻辑==========================
+function ok(point)
+{
+    return 1<=point[0]&&point[0]<=n && 1<=point[1]&&point[1]<=m
+        && !vis[point[0]][point[1]];
+}
+
+// 算法目标：找到目的地
+function dfs(point)
+{
+    vis[point[0]][point[1]] = 1;
+    if(point.toString()==pt_e.toString())
+    {
+        find = 1;
+        setTimeout(()=>{draw_find=1;window.alert("Target is found!");},t+=base_t);
+        return;
+    }
+    if(find) return 0;
+
+    setTimeout(()=>{svg.set_style(b[point[0]][point[1]],base_style_props[4]);},t+=base_t);
+    setTimeout(()=>{svg.set_style(b[point[0]][point[1]],base_style_props[2]);},t+=base_t);
+    for(let i = 0; i < 4; i++)
+    {
+        let nxt = clone(point);
+        nxt[0] += dir[i][0];
+        nxt[1] += dir[i][1];
+        if(ok(nxt)) dfs(nxt);
+    }
+    setTimeout(()=>{svg.set_style(b[point[0]][point[1]],draw_find?base_style_props[6]:base_style_props[3]);},t+=base_t);
+    // vis[point[0]][point[1]] = 0;
+}
+
+function bfs(pt_s)
+{
+    let qu = [pt_s];
+    vis[pt_s[0]][pt_s[1]] = 1;
+    while(qu.length>0)
+    {
+        let now = qu.shift();
+        for(let i = 0; i < 4; i++)
+        {
+            let nxt =[now[0]+dir[i][0], now[1]+dir[i][1]];
+            if(ok(nxt))
+            {
+                if(nxt.toString()==pt_e.toString())
+                {
+                    setTimeout(() => {window.alert("Target is found!");}, t+=base_t);
+                    return 0;
+                }
+                vis[nxt[0]][nxt[1]] = 1;
+                qu.push(nxt);
+                setTimeout(()=>{svg.set_style(b[nxt[0]][nxt[1]],"fill:blue;");},t+=base_t);
+            }
+        }
+    }
+}
+
+function set_range()
+{
+    let tmp = document.getElementById('time_scale').value;
+    document.getElementById('label_1').innerText = "speed:"+tmp;
+    base_t = 1000/tmp;
+}
+
+function init()
+{
+    // 注：以下不带 let 的变量，将被提权到全局作用域！！！
+
+    svg = new SVG();
+
+    base_x = 50, base_y = 50, base_pixel = 30, base_t = 200;
+    n = 10, m = 15;
+    pt_s = [1,1], pt_e = [Math.round(Math.random()*(n-1))+1,Math.round(Math.random()*(m-1))+1];
+
+    dir = [[0,1],[1,0],[0,-1],[-1,0]];
+    a = []; // 存算法数据
+    vis = [];//标记数组
+    b = []; // 存图形对象
+    find = 0, draw_find = 0, t = 0; //查找标记，绘图查找标记，绘图时间点
+
+    base_style_props = [
+        "fill:#eee;stroke-width:1;stroke:#666;",
+        "fill:#111;stroke-width:1;stroke:#666;",
+        "fill:#6a6;stroke-width:1;stroke:#666;",
+        "fill:#555;stroke-width:1;stroke:#666;",
+        "fill:#f63;stroke-width:1;stroke:#666;",
+        "fill:#ea0;stroke-width:1;stroke:#666;",
+        "fill:#8e8;stroke-width:1;stroke:#666;",
+    ];
+
+
+    for(let i = 1; i <= n; i++)
+    {
+        a[i] = [];
+        b[i] = [];
+        vis[i] = [];
+        for(let j = 1; j <= m; j++)
+        {
+            vis[i][j] = a[i][j] = (Math.random()>0.7);
+            let attr = {"width":base_pixel,"height":base_pixel,"x":base_x+(j-1)*base_pixel,"y":base_y+(i-1)*base_pixel};
+            let style = base_style_props[a[i][j]?1:0];
+            b[i][j] = svg.rect(attr,style);
+        }
+    }
+
+    vis[pt_s[0]][pt_s[1]] = a[pt_s[0]][pt_s[1]] = 0;
+    vis[pt_e[0]][pt_e[1]] = a[pt_e[0]][pt_e[1]] = 0;
+    svg.set_style(b[pt_s[0]][pt_s[1]], base_style_props[4]);
+    svg.set_style(b[pt_e[0]][pt_e[1]], base_style_props[5]);
+
+    set_range();
+}
+
+function init2()
+{
+    
+    find = 0;
+    draw_find = 0
+    t = 0;
+    // base_t = document.getElementById("range1").value;
+    for(let i = 1; i <= n; i++)
+    {
+        for(let j = 1; j <= m; j++)
+        {
+            vis[i][j] = a[i][j];
+            let attr = {"width":base_pixel,"height":base_pixel,"x":base_x+(j-1)*base_pixel,"y":base_y+(i-1)*base_pixel};
+            let style = base_style_props[a[i][j]?1:0];
+            b[i][j] = svg.rect(attr,style);
+        }
+    }
+    svg.set_style(b[pt_s[0]][pt_s[1]], base_style_props[4]);
+    svg.set_style(b[pt_e[0]][pt_e[1]], base_style_props[5]);
+}
+
+function run1()
+{
+    init2();
+    dfs(pt_s);
+    setTimeout(()=>{
+        svg.set_style(b[pt_s[0]][pt_s[1]], base_style_props[4]);
+        svg.set_style(b[pt_e[0]][pt_e[1]], base_style_props[5]);
+    },t+=base_t);
+    
+}
+
+function run2()
+{
+    init2();
+    bfs(pt_s);
+}
+
+init();
+
+</script>
