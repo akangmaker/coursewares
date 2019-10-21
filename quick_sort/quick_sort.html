@@ -146,9 +146,9 @@ function init_algorithm(svg, tl)
         id[i] = i;
         a[i] = parseInt(Math.random()*(n*2)+1);
         b[i] = svg.rect("width:20;height:50;x:0;y:50;","fill:#eee;stroke-width:2;stroke:#666;");
-        b[i].setAttribute("height", a[i]*2);
+        b[i].setAttribute("height", a[i]*3);
         b[i].setAttribute("x", i*25);
-        c[i] = svg.text(a[i],"y:50","fill:#f00");
+        c[i] = svg.text(a[i],"y:50","fill:#6f3");
         c[i].setAttribute("x", i*25);
     }
 
@@ -165,7 +165,7 @@ function init()
     var tl = anime.timeline({
         easing: 'linear',
         // direction: 'alternate',
-        duration: 500
+        duration: 1000
     });
 
     init_algorithm(svg,tl);
