@@ -1,18 +1,23 @@
 
+<title>快速排序算法演示: 重庆市育才中学校 赵康</title>
+
 <div style="width:600;margin:0 auto">
     <h3>快速排序算法演示</h3>
     <!--SVG 元素：矩形 <rect>; 圆形 <circle>; 椭圆 <ellipse>; 线 <line>; 折线 <polyline>; 多边形 <polygon>; 路径 <path>-->
-    <svg id = "svg" width="600" height="300" style="background-color: bisque;" version="1.1" xmlns="http://www.w3.org/2000/svg"></svg>
-    <button onclick="location.reload();">换一个例子</button>
+    <svg id = "svg" width="500" height="300" style="background-color: bisque;" version="1.1" xmlns="http://www.w3.org/2000/svg"></svg>
+    <br/>
     <button id="play">PLay</button>
     <button id="pause">Pause</button>
     <button id="restart">Restart</button>
+    <button onclick="location.reload();">换一个例子</button>
     <br/>
     Author ：重庆市育才中学校 赵康
     <br/>
-    Version ：0.1
+    Version ：0.2
     <!-- <hr> -->
-    <!-- 2019-10-21 完成基本逻辑，代码有待精简和规范化 -->
+    <!-- 2019-10-21 完成基本逻辑 -->
+    <!-- 2019-10-22 增加变量及区间标记，微调一些参数 -->
+    <!-- TODO:代码有待精简和规范化 -->
 
 </div>
 
@@ -96,81 +101,108 @@ function kvs2str(kvs)
 
 
 
-function init_algorithm(svg, tl)
+function init_algorithm()
 {
     var n = 15;
-    var id = Array(n+1);
+    // var id = Array(n+1);
     var a = Array(n+1);
     var b = Array(n+1);
     var c = Array(n+1);
-
-    var t = 0;
-
-    function quick_sort(l, r)
-    {
-        if(l>=r) return;
-        let i = l, j = r;
-        let idx = id[i];
-        let x = a[i];
-        let y = b[i];
-        let z = c[i];
-        tl.add({targets: [b[i],c[i]], translateY: 100});
-        while(i<j)
-        {
-            while(i<j && a[j]>=x) j--;
-            id[i] = id[j]
-            a[i] = a[j];
-            b[i] = b[j];
-            c[i] = c[j];
-            if(i<j) tl.add({targets: [b[i],c[i]], translateX: (i-id[i])*25});
-
-            while(i<j && a[i]<=x) i++;
-            id[j]= id[i];
-            a[j] = a[i];
-            b[j] = b[i];
-            c[j] = c[i];
-            if(i<j) tl.add({targets: [b[j],c[j]], translateX: (j-id[j])*25});
-        }
-        id[i]= idx;
-        a[i] = x;
-        b[i] = y;
-        c[i] = z;
-
-        tl.add({targets: [b[i],c[i]], keyframes: [{translateX: (i-id[i])*25},{translateY: 0}]});
-        quick_sort(l,i-1);
-        quick_sort(i+1,r);
-    }
-
+    // var t = 0;
+    var line = svg.rect("height:2;y:30;","fill:#6D3");
+    var I = svg.text("i","y:30","fill:#8e8;stroke-width:1;stroke:#666");
+    var J = svg.text("j","y:30","fill:#8e8;stroke-width:1;stroke:#666");
+    var X = svg.text("x","y:30","fill:#8e8;stroke-width:1;stroke:#666");
     for(let i = 1; i <= n; i++)
     {
-        id[i] = i;
+        // id[i] = i;
         a[i] = parseInt(Math.random()*(n*2)+1);
         b[i] = svg.rect("width:20;height:50;x:0;y:50;","fill:#eee;stroke-width:2;stroke:#666;");
         b[i].setAttribute("height", a[i]*3);
-        b[i].setAttribute("x", i*25);
+        // b[i].setAttribute("x", i*25);
         c[i] = svg.text(a[i],"y:50","fill:#8e8;stroke-width:1;stroke:#666");
-        c[i].setAttribute("x", i*25);
+        // c[i].setAttribute("x", i*25);
+        tl.add({targets: [b[i],c[i]], translateX: i*25},0);
+        
     }
 
     console.log(a);
     quick_sort(1,n);
     console.log(a);
+
+    
+    function quick_sort(l, r)
+    {
+        if(l>r) return;
+        let i = l, j = r;
+        tl.add({targets: I, translateX: i*25+10});
+        tl.add({targets: J, translateX: j*25+10});
+        tl.add({targets: line, translateX: i*25});
+        tl.add({targets: line, width: (j-i+1)*25-5});
+        // let idx = id[i];
+        let x = a[i];
+        let y = b[i];
+        let z = c[i];
+        tl.add({targets: X, translateX: i*25});
+        tl.add({targets: [X, b[i],c[i]], translateY: 120});
+        while(i<j)
+        {
+            // while(i<j && a[j]>=x) svg.set_style(b[j],"fill:#6E2"),j--;
+            while(i<j && a[j]>=x)
+            {
+                tl.add({targets: J, translateX: j*25+10});
+                j--;
+            }
+            tl.add({targets: J, translateX: j*25+10});
+        
+            // id[i] = id[j];
+            a[i] = a[j];
+            b[i] = b[j];
+            c[i] = c[j];
+            if(i<j) tl.add({targets: [b[i],c[i]], translateX: i*25});
+
+            while(i<j && a[i]<=x)
+            {   
+                tl.add({targets: I, translateX: i*25+10});
+                i++;
+            }
+            tl.add({targets: I, translateX: i*25+10});
+            // id[j]= id[i];
+            a[j] = a[i];
+            b[j] = b[i];
+            c[j] = c[i];
+            if(i<j) tl.add({targets: [b[j],c[j]], translateX: j*25});        
+            tl.add({targets: X, translateX: 0},0);
+        }
+        // id[i]= idx;
+        a[i] = x;
+        b[i] = y;
+        c[i] = z;
+
+        tl.add({targets: [X,b[i],c[i]], keyframes: [{translateX: i*25},{translateY: 0}]});
+        quick_sort(l,i-1);
+        quick_sort(i+1,r);
+    }
+
+
 }
 
 
 function init()
 {
 
-    var svg = new SVG();
-    var tl = anime.timeline({
-        easing: 'linear',
+    svg = new SVG();
+    tl = anime.timeline({
+        // easing: 'linear',
+        easing: 'easeInOutQuad',
         // direction: 'alternate',
-        duration: 800
+        duration: 600
     });
 
     init_algorithm(svg,tl);
 
-    tl.pause();
+    // tl.pause();
+    setTimeout(()=>{tl.pause();},500);
 
     document.querySelector('#play').onclick = tl.play;
     document.querySelector('#pause').onclick = tl.pause;
