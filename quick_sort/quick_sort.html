@@ -112,7 +112,7 @@ function init_algorithm()
     var line = svg.rect("height:2;y:30;","fill:#6D3");
     var I = svg.text("i","y:30","fill:#8e8;stroke-width:1;stroke:#666");
     var J = svg.text("j","y:30","fill:#8e8;stroke-width:1;stroke:#666");
-    var X = svg.text("x","y:30","fill:#8e8;stroke-width:1;stroke:#666");
+//     var X = svg.text("x","y:30","fill:#8e8;stroke-width:1;stroke:#666");
     for(let i = 1; i <= n; i++)
     {
         // id[i] = i;
@@ -143,8 +143,8 @@ function init_algorithm()
         let x = a[i];
         let y = b[i];
         let z = c[i];
-        tl.add({targets: X, translateX: i*25});
-        tl.add({targets: [X, b[i],c[i]], translateY: 120});
+//         tl.add({targets: X, translateX: i*25});
+        tl.add({targets: [b[i],c[i]], translateY: 120});
         while(i<j)
         {
             // while(i<j && a[j]>=x) svg.set_style(b[j],"fill:#6E2"),j--;
@@ -172,14 +172,14 @@ function init_algorithm()
             b[j] = b[i];
             c[j] = c[i];
             if(i<j) tl.add({targets: [b[j],c[j]], translateX: j*25});        
-            tl.add({targets: X, translateX: 0},0);
+//             tl.add({targets: X, translateX: 0},0);
         }
         // id[i]= idx;
         a[i] = x;
         b[i] = y;
         c[i] = z;
 
-        tl.add({targets: [X,b[i],c[i]], keyframes: [{translateX: i*25},{translateY: 0}]});
+        tl.add({targets: [b[i],c[i]], keyframes: [{translateX: i*25},{translateY: 0}]});
         quick_sort(l,i-1);
         quick_sort(i+1,r);
     }
