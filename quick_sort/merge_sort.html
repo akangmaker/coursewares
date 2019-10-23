@@ -1,24 +1,24 @@
 
-<title>褰掑苟鎺掑簭绠楁硶婕旂ず</title>
+<title>归并排序算法演示</title>
 
 <div style="width:600;margin:0 auto">
-    <h3>褰掑苟鎺掑簭绠楁硶婕旂ず</h3>
-    <!--SVG 鍏冪礌锛氱煩褰?<rect>; 鍦嗗舰 <circle>; 妞渾 <ellipse>; 绾?<line>; 鎶樼嚎 <polyline>; 澶氳竟褰?<polygon>; 璺緞 <path>-->
+    <h3>归并排序算法演示</h3>
+    <!--SVG 元素：矩形 <rect>; 圆形 <circle>; 椭圆 <ellipse>; 线 <line>; 折线 <polyline>; 多边形 <polygon>; 路径 <path>-->
     <svg id = "svg" width="500" height="300" style="background-color: bisque;" version="1.1" xmlns="http://www.w3.org/2000/svg"></svg>
     <br/>
     <button id="play">PLay</button>
     <button id="pause">Pause</button>
     <button id="restart">Restart</button>
-    <button onclick="location.reload();">鎹竴涓緥瀛?/button>
+    <button onclick="location.reload();">换一个例子</button>
     <br/>
-    Author 锛氶噸搴嗗競鑲叉墠涓鏍?璧靛悍
+    Author ：重庆市育才中学校 赵康
     <br/>
-    Version 锛?.2
+    Version ：0.2
     <!-- <hr> -->
-    <!-- 2019-10-21 瀹屾垚鍩烘湰閫昏緫 -->
-    <!-- 2019-10-22 澧炲姞鍙橀噺鍙婂尯闂存爣璁帮紝寰皟涓€浜涘弬鏁?-->
-    <!-- 2019-10-23 鏁版嵁鍙傛暟鍖?-->
-    <!-- TODO:浠ｇ爜鏈夊緟绮剧畝鍜岃鑼冨寲 -->
+    <!-- 2019-10-21 完成基本逻辑 -->
+    <!-- 2019-10-22 增加变量及区间标记，微调一些参数 -->
+    <!-- 2019-10-23 数据参数化 -->
+    <!-- TODO:代码有待精简和规范化 -->
 
 </div>
 
@@ -30,7 +30,7 @@
     {
         constructor() {
             this._stage = document.getElementById("svg");
-            this._id = 0 //鑷姩澧為暱锛屽敮涓€瀹氫綅svg鍏冪礌
+            this._id = 0 //自动增长，唯一定位svg元素
         }
     
         // Create SVG rectangle
