@@ -1,0 +1,349 @@
+<title>冒泡排序算法演示</title>
+
+<div style="width:600;margin:0 auto">
+    <h3>冒泡排序算法演示</h3>
+    <!--SVG 元素：矩形 <rect>; 圆形 <circle>; 椭圆 <ellipse>; 线 <line>; 折线 <polyline>; 多边形 <polygon>; 路径 <path>-->
+    <svg id = "svg" width="500" height="300" style="background-color: bisque;" version="1.1" xmlns="http://www.w3.org/2000/svg"></svg>
+    <br/>
+    <input id="progress" step="0.01" type="range" min="0" max="99.99" value="0" style="width:500"/>
+    <br/>
+    <button id="play">PLay</button>
+    <button id="pause">Pause</button>
+    <button id="restart">Restart</button>
+    <button onclick="location.reload();">换一个例子</button>
+    <br/>
+    <a href="bubble_sort.html">冒泡排序</a> 
+    <a href="insert_sort.html">插入排序</a> 
+    <a href="quick_sort.html">快速排序</a> 
+    <a href="merge_sort.html">归并排序</a> 
+    <br>
+    Author ：重庆市育才中学校 赵康
+    <br/>
+    Version ：0.3
+    <!-- <hr> -->
+    <!-- 2019-10-21 完成基本逻辑 -->
+    <!-- 2019-10-22 增加变量及区间标记，微调一些参数 -->
+    <!-- 2019-10-23 数据参数化 -->
+    <!-- 2019-10-24 增加了进度条逻辑，增加了多个排序算法动画 -->
+    <!-- TODO:代码有待精简和规范化；速度控制；“换一个例子” ：重置数据，使得不依赖刷新网页 -->
+
+</div>
+
+<script src="anime.min.js"></script>
+
+<script type="text/javascript">
+    //========Basic===============
+    class SVG
+    {
+        constructor() {
+            this._stage = document.getElementById("svg");
+            this._id = 0 //自动增长，唯一定位svg元素
+        }
+    
+        // Create SVG rectangle
+        rect(attr,style)
+        {
+            let rect = document.createElementNS( "http://www.w3.org/2000/svg", "rect");
+            rect["id"] = ++this._id;
+            this.set_attr(rect,attr)
+            this.set_style(rect,style);
+            this._stage.appendChild(rect);
+            return rect;
+        }
+    
+        text(val,attr="",style="")
+        {
+            let text = document.createElementNS( "http://www.w3.org/2000/svg", "text");
+            text.setAttributeNS(null,"id",++this._id); 
+            text.setAttributeNS(null,"font-size","12");  
+            text.appendChild(document.createTextNode(val));  
+            this.set_attr(text,attr);
+            this.set_style(text,style);
+            this._stage.appendChild(text);
+            return text;
+        }
+    
+        // remove(ele)
+        // {
+        //     this._stage.removeChild(ele);
+        // }
+    
+        set_style(ele, props)
+        {
+            if(typeof(props)=='string') document.getElementById(ele);
+            if(typeof(props)=='string') props = str2kvs(props);
+            for(let key in props) ele.style[key] = props[key];
+        }
+    
+        set_attr(ele,props)
+        {
+            if(typeof(props)=='string') document.getElementById(ele);
+            if(typeof(props)=='string') props = str2kvs(props);
+            for(let key in props) ele.setAttribute(key,props[key]);
+        }
+    }
+    
+    //========Tools====
+    
+    function str2kvs(str)
+    {
+        let res = {}
+        let arr = str.split(";");
+        for(let i=0; i<arr.length; i++)
+        {
+            let arr2 = arr[i].split(":");
+            if(arr2[0].length > 0)res[arr2[0]] = arr2[1];
+        }
+        return res;
+    }
+    
+    function kvs2str(kvs)
+    {
+        let res = "";
+        for(let key in kvs)
+        {
+            res += key + ":" + kvs[key] + ";";
+        }
+        return res;
+    }
+    
+    
+    
+    function init_algorithm()
+    {
+        var n = 15;
+        var a = Array(n+1);
+        var b = Array(n+1);
+        var c = Array(n+1);
+        var tmp = Array(n+1);
+        var tmp_b = Array(n+1);
+        var tmp_c = Array(n+1);
+        var line = svg.rect("height:2;y:30;","fill:#6D3");
+        var I = svg.text("i","y:30","fill:#8e8;stroke-width:1;stroke:#666");
+        var J = svg.text("j","y:30","fill:#8e8;stroke-width:1;stroke:#666");
+        for(let i = 1; i <= n; i++)
+        {
+            a[i] = parseInt(Math.random()*(n*2)+1);
+            b[i] = svg.rect("width:20;height:50;x:0;y:50;","fill:#eee;stroke-width:2;stroke:#666;");
+            b[i].setAttribute("height", a[i]*3);
+            c[i] = svg.text(a[i],"y:50","fill:#8e8;stroke-width:1;stroke:#666");
+            tl.add({targets: [b[i],c[i]], translateX: i*25},0);
+            
+        }
+    
+        console.log(a);
+        bubble_sort(1,n)
+        // insert_sort(1,n);
+        // merge_sort(1,n);
+        // quick_sort(1,n);
+        console.log(a);
+    
+        
+        function quick_sort(l, r)
+        {
+            if(l>r) return;
+            let i = l, j = r;
+            tl.add({targets: I, translateX: i*25+10});
+            tl.add({targets: J, translateX: j*25+10});
+            tl.add({targets: line, translateX: i*25});
+            tl.add({targets: line, width: (j-i+1)*25-5});
+            let x = a[i];
+            let y = b[i];
+            let z = c[i];
+            tl.add({targets: [b[i],c[i]], translateY: 120});
+            while(i<j)
+            {
+                while(i<j && a[j]>=x)
+                {
+                    tl.add({targets: J, translateX: j*25+10});
+                    j--;
+                }
+                tl.add({targets: J, translateX: j*25+10});
+            
+                a[i] = a[j];
+                b[i] = b[j];
+                c[i] = c[j];
+                if(i<j) tl.add({targets: [b[i],c[i]], translateX: i*25});
+    
+                while(i<j && a[i]<=x)
+                {   
+                    tl.add({targets: I, translateX: i*25+10});
+                    i++;
+                }
+                tl.add({targets: I, translateX: i*25+10});
+                a[j] = a[i];
+                b[j] = b[i];
+                c[j] = c[i];
+                if(i<j) tl.add({targets: [b[j],c[j]], translateX: j*25});
+            }
+            a[i] = x;
+            b[i] = y;
+            c[i] = z;
+    
+            tl.add({targets: [b[i],c[i]], keyframes: [{translateX: i*25},{translateY: 0}]});
+            quick_sort(l,i-1);
+            quick_sort(i+1,r);
+        }
+
+        function merge_sort(l, r)
+        {
+            if(l>=r) return;
+
+            let mid = parseInt((l+r)/2);
+            merge_sort(l,mid);
+            merge_sort(mid+1,r);
+            let i = l, j = mid+1, k = l;
+            while(i <= mid && j <= r)
+            {
+                if(a[i]<=a[j])
+                {
+                    tmp[k] = a[i];
+                    tmp_b[k] = b[i];
+                    tmp_c[k] = c[i];
+                    tl.add({targets: [b[i],c[i]], keyframes: [{translateY: 100},{translateX: k*rect_width}]});
+                    i++,k++;
+                }
+                else
+                {
+                    tmp[k] = a[j];
+                    tmp_b[k] = b[j];
+                    tmp_c[k] = c[j];
+                    tl.add({targets: [b[j],c[j]], keyframes: [{translateY: 100},{translateX: k*rect_width}]});
+                    j++,k++;
+                }
+            }
+            while(i<=mid)
+            {
+                tmp[k] = a[i];
+                tmp_b[k] = b[i];
+                tmp_c[k] = c[i];
+                tl.add({targets: [b[i],c[i]], keyframes: [{translateY: 100},{translateX: k*rect_width}]});
+                i++,k++;
+            }
+            while(j<=r)
+            {
+                tmp[k] = a[j];
+                tmp_b[k] = b[j];
+                tmp_c[k] = c[j];
+                tl.add({targets: [b[j],c[j]], keyframes: [{translateY: 100},{translateX: k*rect_width}]});
+                j++,k++;
+            }
+            for(let i = l; i <= r; i++)
+            {
+                a[i] = tmp[i];
+                b[i] = tmp_b[i];
+                c[i] = tmp_c[i];
+                tl.add({targets: [b[i],c[i]], translateY: 0});
+            }
+            
+                tl.add({targets: line, translateX: l*rect_width});
+                tl.add({targets: line, width: (r-l+0.8)*rect_width});
+        }
+        
+        function insert_sort(l, r)
+        {
+            tl.add({targets: line, translateX: rect_width});
+            tl.add({targets: J, translateX: -100},0);
+
+            for(let i = l; i <= r; i++)
+            {
+                let j = i-1;
+                let x = a[i];
+                let y = b[i];
+                let z = c[i];
+                tl.add({targets: I, translateX: (i)*rect_width});
+                tl.add({targets: [b[i],c[i]], translateY: 100});
+                while(l<=j && a[j]>x)
+                {    
+                    tl.add({targets: [y,z], translateX: (j)*rect_width});
+                    a[j+1] = a[j];
+                    b[j+1] = b[j];
+                    c[j+1] = c[j];
+                    tl.add({targets: [b[j+1],c[j+1]], translateX: (j+1)*rect_width});
+                    j--;
+                }
+                a[j+1] = x;
+                b[j+1] = y;
+                c[j+1] = z;
+                tl.add({targets: [y,z], translateY: 0});
+                tl.add({targets: line, width: (i-0.2)*rect_width});
+            }
+        }
+
+        function bubble_sort(l, r)
+        {
+            for(let i = r; i >=1; i--)
+            {
+                tl.add({targets: I, translateX: i*rect_width});
+                for(let j = 1; j < i; j++)
+                {
+                    tl.add({targets: J, translateX: j*rect_width});
+                    if(a[j]>a[j+1])
+                    {
+                        let tmp =a[j];
+                        a[j] = a[j+1];
+                        a[j+1] = tmp;
+
+                        tmp =b[j];
+                        b[j] = b[j+1];
+                        b[j+1] = tmp;
+
+                        tmp =c[j];
+                        c[j] = c[j+1];
+                        c[j+1] = tmp;
+
+                        tl.add({targets: [b[j+1],c[j+1]], translateY: 100});
+                        tl.add({targets: [b[j+1],c[j+1]], translateX: (j+1)*rect_width});
+                        tl.add({targets: [b[j],c[j]], translateX: j*rect_width});
+                        tl.add({targets: [b[j+1],c[j+1]], translateY: 0});
+                    }
+                }    
+                tl.add({targets: line, translateX: i*rect_width});
+                tl.add({targets: line, width: (r-i+0.8)*rect_width});
+            }
+        }
+    
+    }
+    
+    function init()
+    {
+        
+        stage_width = 500, stage_height = 300;
+        N = 15;
+        base_pixels = 3;
+        rect_width = (25)*N>stage_width ? stage_width/N: 25;
+        
+
+        console.log(rect_width);
+
+        svg = new SVG();
+        tl = anime.timeline({
+            // easing: 'linear',
+            easing: 'easeInOutQuad',
+            // direction: 'alternate',
+            duration: 500,
+            update: function(tl) {
+                seek_progress.value = tl.progress;
+            }
+        });
+    
+        init_algorithm();
+    
+        // tl.pause();
+        setTimeout(()=>{tl.pause();},300);
+
+        document.querySelector('#play').onclick = tl.play;
+        document.querySelector('#pause').onclick = tl.pause;
+        document.querySelector('#restart').onclick = tl.restart;
+        seek_progress = document.querySelector('#progress');
+        seek_progress.oninput = function() {
+            tl.seek(tl.duration * (seek_progress.value / 100));
+        };
+    }
+    
+    init();
+    
+    
+    
+    </script>
+    
